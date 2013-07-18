@@ -15,4 +15,4 @@ mkdir -p "$dir"
 curl -s "$url" | tar xvz -C "$dir" >/dev/null 2>&1
 $dir/bin/compile $build_dir $cache_dir
 
-echo "export LD_LIBRARY_PATH=\$HOME/lib" > $BUILD_DIR/.profile.d/ld_library.sh
+echo "export LD_LIBRARY_PATH=\$HOME/lib" > $build_dir/.profile.d/ld_library.sh
