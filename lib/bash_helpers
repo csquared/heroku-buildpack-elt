@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+#setup env
+if [ "$month" = "" ]
+then
+  export month=$(date "+%Y-%m")
+fi
+
+if [ "$from" = "" ]
+then
+  export from=$month-01
+fi
+
+if [ "$to" = "" ]
+then
+  export to=$month-$(date "+%d")
+fi
+
+if [ "$current_build" = "" ]
+then
+  export current_build="current_build"
+fi
+
+if [ "$scope" = "" ]
+then
+  export scope="set search_path to $current_build, public"
+fi
+
+if [ "$yesterday" = "" ]
+then
+  export yesterday=$(ruby -e "puts (Time.now - 24*60*60).strftime('%Y-%m-%d')")
+fi
+
+if [ "$DEBUG" = "" ]
+then
+  mkdir -p dump/schema
+fi
+
+scoped_run (){
+  run "$1" "$scope; $2"
+}
+
+run (){
+  if [ "$DEBUG" = "" ]
+  then
+    time bin/psql "$1" -E -c "$2"
+  else
+    echo time bin/psql "$1" -E -c "$2"
+  fi
+}
+
+scoped_sql (){
+  run "$1" "$scope; $(cat $2)"
+}
+
+sql(){
+  if [ "$DEBUG" = "" ]
+  then
+    time cat "$2" | bin/psql "$1" -E
+  else
+    echo time cat "$2" "|" bin/psql "$1" -E
+  fi
+}
+
+measure(){
+  echo "app=elt measure=true $1"
+}
+
+load(){
+ run "$1" "truncate $2"
+ run "$1" "\copy $2 FROM 'dump/$2' BINARY"
+}
+
+finished (){
+  run "$ELT" "INSERT INTO runs(name, finished_at) VALUES ('$1', now())"
+}

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# bin/compile <build-dir> <cache-dir>
+
+build_dir=$1
+cache_dir=$2
+
+# clean up leaking environment
+unset GIT_DIR
+
+echo "=====> Downloading Node.js buildpack"
+url=http://codon-buildpacks.s3.amazonaws.com/buildpacks/heroku/nodejs.tgz
+dir=$(mktemp -t buildpackXXXXX)
+rm -rf $dir
+mkdir -p "$dir"
+curl -s "$url" | tar xvz -C "$dir" >/dev/null 2>&1
+$dir/bin/compile $build_dir $cache_dir
+
+echo "export LD_LIBRARY_PATH=\$HOME/lib" > $BUILD_DIR/.profile.d/ld_library.sh

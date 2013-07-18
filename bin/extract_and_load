@@ -1,0 +1,56 @@
+#!/usr/bin/env coffee
+
+fs      = require 'fs'
+yaml    = require 'yaml-js'
+async   = require 'async'
+pg_copy = require '../lib/pg_copy'
+logger  = require('../lib/logger')('elt')
+argv    = require('optimist').argv
+
+
+# main(specs) takes a spec file.
+#
+# TODO: It replaces any dollar sign variables in
+# the spec file with the corresponding
+# command line arguments passed in
+# via --key value syntax or -k v syntax
+# for example:
+#
+#   A spec file with:
+#   -where
+#     - field > '$to'::timestamp
+#
+#   Run via:
+#   ./extract_and_load spec.yaml --to 2013-05-12
+#
+#   Would generate a WHERE clause of:
+#   WHERE field > '2013-05-12'::timestamp
+main = (raw_specs) ->
+  # report the time
+  logger.log {fn: "extract_and_load"}, (logr) ->
+    process.on 'exit', -> logr.finish()
+
+  # do variable replacement
+  for key, value of argv when key != '_' and key != '$0'
+    console.log(key, value)
+    raw_specs = raw_specs.replace("$#{key}", value) while ~raw_specs.indexOf("$#{key}")
+
+  # convert yaml to objects
+  specs = yaml.load raw_specs
+
+  # build array of function calls
+  pg_copies = specs.map (spec) ->
+    (callback) -> new pg_copy.PgCopy(spec).run(callback)
+
+  # execute calls in parallel, exit when finished
+  async.parallel pg_copies, () ->
+    process.exit(0)
+
+file = argv._[0]
+if fs.existsSync( file )
+  # load the spec file
+  console.log("using specs in #{file}")
+  main fs.readFileSync(file, 'utf8')
+else
+  # error - no spec file given
+  console.log("must pass in a spec file as first argument")
