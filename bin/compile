@@ -14,6 +14,7 @@ dir=$(mktemp -t buildpackXXXXX)
 rm -rf $dir
 mkdir -p "$dir"
 curl -s "$url" | tar xvz -C "$dir" >/dev/null 2>&1
+mv $LP_DIR/node_modules $BUILD_DIR/
 mv $LP_DIR/package.json $BUILD_DIR/
 
 echo "=====> Installing Node.js dependencies"
