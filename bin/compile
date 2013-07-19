@@ -3,6 +3,7 @@
 
 BUILD_DIR=$1
 CACHE_DIR=$2
+LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
 # clean up leaking environment
 unset GIT_DIR
@@ -13,15 +14,15 @@ dir=$(mktemp -t buildpackXXXXX)
 rm -rf $dir
 mkdir -p "$dir"
 curl -s "$url" | tar xvz -C "$dir" >/dev/null 2>&1
-mv package.json $dir
+mv $LP_DIR/package.json $dir
 
 echo "=====> Installing Node.js dependencies"
 $dir/bin/compile $BUILD_DIR $CACHE_DIR
 
 echo "=====> Installing elt"
-cp bin/psql $BUILD_DIR/bin/
-cp bin/extract_and_load $BUILD_DIR/bin/
-cp -R lib $BUILD_DIR/
+cp $LP_DIR/bin/psql $BUILD_DIR/bin/
+cp $LP_DIR/bin/extract_and_load $BUILD_DIR/bin/
+cp -R $LP_DIR/lib $BUILD_DIR/
 
 mkdir -p $BUILD_DIR/.profile.d
 echo "export LD_LIBRARY_PATH=\"\$HOME/lib\"" > $BUILD_DIR/.profile.d/ld_library.sh
