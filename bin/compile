@@ -13,6 +13,7 @@ dir=$(mktemp -t buildpackXXXXX)
 rm -rf $dir
 mkdir -p "$dir"
 curl -s "$url" | tar xvz -C "$dir" >/dev/null 2>&1
+mv package.json $dir
 $dir/bin/compile $BUILD_DIR $CACHE_DIR
 
 mkdir -p $BUILD_DIR/.profile.d
