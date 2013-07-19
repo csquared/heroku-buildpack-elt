@@ -13,8 +13,8 @@ dir=$(mktemp -t buildpackXXXXX)
 rm -rf $dir
 mkdir -p "$dir"
 curl -s "$url" | tar xvz -C "$dir" >/dev/null 2>&1
-mv package.json $dir
+mv $BUILD_DIR/package.json $dir
 $dir/bin/compile $BUILD_DIR $CACHE_DIR
 
 mkdir -p $BUILD_DIR/.profile.d
-echo "export LD_LIBRARY_PATH=\"\$HOME/app" > $BUILD_DIR/.profile.d/nodejs.sh
+echo "export LD_LIBRARY_PATH=\"\$HOME/lib\"" > $BUILD_DIR/.profile.d/ld_library.sh
