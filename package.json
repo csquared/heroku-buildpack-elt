@@ -1,0 +1,10 @@
+{
+  "name" : "node-elt",
+  "version" : "0.1.0",
+  "dependencies" : {
+    "coffee-script" : "*",
+    "yaml-js": "*",
+    "optimist": "*",
+    "async" : "*"
+  }
+}

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # bin/compile <build-dir> <cache-dir>
 
-build_dir=$1
-cache_dir=$2
+BUILD_DIR=$1
+CACHE_DIR=$2
 
 # clean up leaking environment
 unset GIT_DIR
@@ -13,6 +13,7 @@ dir=$(mktemp -t buildpackXXXXX)
 rm -rf $dir
 mkdir -p "$dir"
 curl -s "$url" | tar xvz -C "$dir" >/dev/null 2>&1
-$dir/bin/compile $build_dir $cache_dir
+$dir/bin/compile $BUILD_DIR $CACHE_DIR
 
-echo "export LD_LIBRARY_PATH=\$HOME/lib" > $build_dir/.profile.d/ld_library.sh
+mkdir -p $BUILD_DIR/.profile.d
+echo "export LD_LIBRARY_PATH=\"\$HOME/app" > $BUILD_DIR/.profile.d/nodejs.sh
