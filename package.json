@@ -5,6 +5,7 @@
     "coffee-script" : "*",
     "yaml-js": "*",
     "optimist": "*",
-    "async" : "*"
+    "async" : "*",
+    "logfmt" : "*"
   }
 }

@@ -2,7 +2,7 @@
 
 spawn  = require("child_process").spawn
 coffee = require "coffee-script"
-logr   = require('./logger')('elt')
+logfmt = require('logfmt')
 
 module.exports.PgCopy = class PgCopy
   constructor: (@spec, @options = {}) ->
@@ -42,17 +42,16 @@ module.exports.PgCopy = class PgCopy
     [process.env[@spec.destination_db], '-c', @in_sql()]
 
   run: (callback = null) ->
-    logr.log @log_params(fn: 'pg_copy_run', out_sql: @out_sql(), in_sql: @in_sql())
+    logfmt.log @log_params(fn: 'pg_copy_run', out_sql: @out_sql(), in_sql: @in_sql())
     if !process.env['DEBUG']
-      logr.log @log_params(fn: 'pg_copy_spawn'), (logger) =>
-        copy_out = spawn 'psql', @copy_out_args()
-        copy_in  = spawn 'psql', @copy_in_args()
-        copy_out.stdout.pipe copy_in.stdin
-        copy_in.stderr.on  'data', (data) -> process.stdout.write("STDERR #{data}")
-        copy_out.stderr.on 'data', (data) -> process.stdout.write("STDERR #{data}")
-        copy_out.on 'exit', (code) -> logger.log {at: "copy_out_exit", status: code, last: code}
-        copy_in.on  'exit', (code) ->
-          logger.finish status: code, last: code
-          callback() if callback
-
-
+      startTime = new Date()
+      copy_out = spawn 'psql', @copy_out_args()
+      copy_in  = spawn 'psql', @copy_in_args()
+      copy_out.stdout.pipe copy_in.stdin
+      copy_in.stderr.on  'data', (data) -> process.stdout.write("STDERR #{data}")
+      copy_out.stderr.on 'data', (data) -> process.stdout.write("STDERR #{data}")
+      copy_out.on 'exit', (code) -> logfmt.log {at: "copy_out_exit", status: code, last: code}
+      copy_in.on  'exit', (code) =>
+        elapsed = (new Date() - startTime) / 1000 + 's'
+        logfmt.log @log_params(fn: 'pg_copy_spawn', status: code, last: code, elpased: elapsed)
+        callback() if callback

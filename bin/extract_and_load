@@ -4,7 +4,7 @@ fs      = require 'fs'
 yaml    = require 'yaml-js'
 async   = require 'async'
 pg_copy = require '../lib/pg_copy'
-logger  = require('../lib/logger')('elt')
+logfmt = require('logfmt')
 argv    = require('optimist').argv
 
 
@@ -27,8 +27,10 @@ argv    = require('optimist').argv
 #   WHERE field > '2013-05-12'::timestamp
 main = (raw_specs) ->
   # report the time
-  logger.log {fn: "extract_and_load"}, (logr) ->
-    process.on 'exit', -> logr.finish()
+  startTime = new Date()
+  process.on 'exit', ->
+    elapsed = (new Date() - startTime) / 1000 + 's'
+    logfmt.log {fn: "extract_and_load", elapsed: elapsed }
 
   # do variable replacement
   for key, value of argv when key != '_' and key != '$0'

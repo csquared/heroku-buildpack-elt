@@ -1,0 +1,7 @@
+-
+  source_db: DATABASE_URL
+  destination_db: DATABASE_URL
+  source_table: things
+  destination_table: new_things
+  fields:
+    id: int
