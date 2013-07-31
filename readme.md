@@ -36,6 +36,8 @@ and databases you'd like to use for the copy.
 
 Here's an example spec:
 
+We assumed `ANOTHER_DATABASE_URL` and `DATABASE_URL` are defined in your environment.
+
 ### example_spec.yml
 
     -
